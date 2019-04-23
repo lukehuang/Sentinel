@@ -85,7 +85,7 @@ public class ParamFlowRuleEntity extends AbstractRuleEntity<ParamFlowRule> {
     public ParamFlowClusterConfig getClusterConfig() {
         return rule.getClusterConfig();
     }
-    
+
     @Override
     public Rule toRule() {
         return rule;

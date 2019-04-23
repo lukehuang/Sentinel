@@ -7,7 +7,7 @@ app.service('AuthService', ['$http', function ($http) {
       params: param,
       method: 'POST'
     })
-  }
+  };
 
   this.logout = function () {
     return $http({

@@ -15,6 +15,9 @@
  */
 package com.alibaba.csp.sentinel.dashboard.datasource.entity.rule;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+
 import java.util.Date;
 
 import com.alibaba.csp.sentinel.slots.block.Rule;
@@ -23,7 +26,7 @@ import com.alibaba.csp.sentinel.slots.block.Rule;
  * @author leyou
  */
 public interface RuleEntity {
-
+    @JsonSerialize(using = ToStringSerializer.class)
     Long getId();
 
     void setId(Long id);
@@ -35,6 +38,6 @@ public interface RuleEntity {
     Integer getPort();
 
     Date getGmtCreate();
-    
+
     Rule toRule();
 }

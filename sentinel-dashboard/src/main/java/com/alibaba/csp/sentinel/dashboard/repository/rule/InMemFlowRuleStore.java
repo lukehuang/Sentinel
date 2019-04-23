@@ -30,13 +30,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class InMemFlowRuleStore extends InMemoryRuleRepositoryAdapter<FlowRuleEntity> {
 
-    private static AtomicLong ids = new AtomicLong(0);
-
-    @Override
-    protected long nextId() {
-        return ids.incrementAndGet();
-    }
-
     @Override
     protected FlowRuleEntity preProcess(FlowRuleEntity entity) {
         if (entity != null && entity.isClusterMode()) {

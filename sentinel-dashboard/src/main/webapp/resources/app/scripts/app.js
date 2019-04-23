@@ -24,27 +24,26 @@ angular
     'angularUtils.directives.dirPagination'
   ])
   .factory('AuthInterceptor', ['$window', '$state', function ($window, $state) {
-    var authInterceptor = {
-      'responseError' : function(response) {
-        if (response.status == 401) {
-          // If not auth, clear session in localStorage and jump to the login page
-          $window.localStorage.removeItem("session_sentinel_admin");
-          $state.go('login');
-        }
+      return {
+        'responseError': function (response) {
+            if (response.status === 401) {
+                // If not auth, clear session in localStorage and jump to the login page
+                $window.localStorage.removeItem("session_sentinel_admin");
+                $state.go('login');
+            }
 
-        return response;
-      },
-      'response' : function(response) {
-        return response;
-      },
-      'request' : function(config) {
-        return config;
-      },
-      'requestError' : function(config){
-        return config;
-      }
+            return response;
+        },
+        'response': function (response) {
+            return response;
+        },
+        'request': function (config) {
+            return config;
+        },
+        'requestError': function (config) {
+            return config;
+        }
     };
-    return authInterceptor;
   }])
   .config(['$stateProvider', '$urlRouterProvider', '$ocLazyLoadProvider', '$httpProvider',
     function ($stateProvider, $urlRouterProvider, $ocLazyLoadProvider, $httpProvider) {
@@ -234,6 +233,22 @@ angular
                 }]
             }
        })
+
+        .state('dashboard.authorityV2', {
+            templateUrl: 'app/views/authority_v2.html',
+            url: '/v2/authority/:app',
+            controller: 'AuthorityRuleControllerV2',
+            resolve: {
+                loadMyFiles: ['$ocLazyLoad', function ($ocLazyLoad) {
+                    return $ocLazyLoad.load({
+                        name: 'sentinelDashboardApp',
+                        files: [
+                            'app/scripts/controllers/authority_v2.js'
+                        ]
+                    });
+                }]
+            }
+        })
 
       .state('dashboard.degrade', {
         templateUrl: 'app/views/degrade.html',

@@ -212,7 +212,7 @@ app.controller('FlowControllerV2', ['$scope', '$stateParams', 'FlowServiceV2', '
           }
         }
       );
-    };
+    }
     $scope.$watch('macInputModel', function () {
       if ($scope.macInputModel) {
         getMachineRules();

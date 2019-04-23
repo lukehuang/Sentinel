@@ -17,7 +17,7 @@ angular.module('sentinelDashboardApp')
 
         $scope.logout = function () {
           AuthService.logout().success(function (data) {
-            if (data.code == 0) {
+            if (data.code === 0) {
               $window.localStorage.removeItem("session_sentinel_admin");
               $state.go('login');
             } else {

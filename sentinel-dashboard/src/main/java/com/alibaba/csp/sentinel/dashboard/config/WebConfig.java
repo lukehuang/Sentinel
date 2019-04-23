@@ -17,9 +17,12 @@ package com.alibaba.csp.sentinel.dashboard.config;
 
 import com.alibaba.csp.sentinel.adapter.servlet.CommonFilter;
 import com.alibaba.csp.sentinel.dashboard.filter.AuthFilter;
+import com.alibaba.csp.sentinel.dashboard.uniqueid.IdGenerator;
+import com.alibaba.csp.sentinel.dashboard.uniqueid.SnowflakeIdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -75,5 +78,19 @@ public class WebConfig implements WebMvcConfigurer {
         registration.setName("authenticationFilter");
         registration.setOrder(0);
         return registration;
+    }
+
+
+    /**
+     * snowflake global unique id generator
+     *
+     * @param dataCenterId data center id
+     * @param workerId     worker id
+     * @return id generator
+     */
+    @Bean
+    public IdGenerator<Long> snowflakeIdGenerator(@Value("${id.dataCenterId:0}") long dataCenterId,
+                                                  @Value("${id.workerId:0}") long workerId) {
+        return new SnowflakeIdGenerator(dataCenterId, workerId);
     }
 }

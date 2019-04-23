@@ -15,32 +15,33 @@
  */
 package com.alibaba.csp.sentinel.dashboard.repository.rule;
 
+import com.alibaba.csp.sentinel.dashboard.datasource.entity.rule.RuleEntity;
+import com.alibaba.csp.sentinel.dashboard.discovery.MachineInfo;
+import com.alibaba.csp.sentinel.dashboard.uniqueid.IdGenerator;
+import com.alibaba.csp.sentinel.util.AssertUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.alibaba.csp.sentinel.dashboard.datasource.entity.rule.RuleEntity;
-import com.alibaba.csp.sentinel.dashboard.discovery.MachineInfo;
-import com.alibaba.csp.sentinel.util.AssertUtil;
-
 /**
  * @author leyou
  */
 public abstract class InMemoryRuleRepositoryAdapter<T extends RuleEntity> implements RuleRepository<T, Long> {
-
     /**
      * {@code <machine, <id, rule>>}
      */
     private Map<MachineInfo, Map<Long, T>> machineRules = new ConcurrentHashMap<>(16);
     private Map<Long, T> allRules = new ConcurrentHashMap<>(16);
-
     private Map<String, Map<Long, T>> appRules = new ConcurrentHashMap<>(16);
 
-    private static final int MAX_RULES_SIZE = 10000;
+    @Autowired
+    private IdGenerator<Long> idGenerator;
 
     @Override
-    public T save(T entity) {
+    public synchronized T save(T entity) {
         if (entity.getId() == null) {
             entity.setId(nextId());
         }
@@ -53,13 +54,11 @@ public abstract class InMemoryRuleRepositoryAdapter<T extends RuleEntity> implem
             appRules.computeIfAbsent(processedEntity.getApp(), v -> new ConcurrentHashMap<>(32))
                 .put(processedEntity.getId(), processedEntity);
         }
-
         return processedEntity;
     }
 
     @Override
-    public List<T> saveAll(List<T> rules) {
-        // TODO: check here.
+    public synchronized List<T> saveAll(List<T> rules) {
         allRules.clear();
         machineRules.clear();
         appRules.clear();
@@ -75,7 +74,7 @@ public abstract class InMemoryRuleRepositoryAdapter<T extends RuleEntity> implem
     }
 
     @Override
-    public T delete(Long id) {
+    public synchronized T delete(Long id) {
         T entity = allRules.remove(id);
         if (entity != null) {
             if (appRules.get(entity.getApp()) != null) {
@@ -87,12 +86,12 @@ public abstract class InMemoryRuleRepositoryAdapter<T extends RuleEntity> implem
     }
 
     @Override
-    public T findById(Long id) {
+    public synchronized T findById(Long id) {
         return allRules.get(id);
     }
 
     @Override
-    public List<T> findAllByMachine(MachineInfo machineInfo) {
+    public synchronized List<T> findAllByMachine(MachineInfo machineInfo) {
         Map<Long, T> entities = machineRules.get(machineInfo);
         if (entities == null) {
             return new ArrayList<>();
@@ -101,7 +100,7 @@ public abstract class InMemoryRuleRepositoryAdapter<T extends RuleEntity> implem
     }
 
     @Override
-    public List<T> findAllByApp(String appName) {
+    public synchronized List<T> findAllByApp(String appName) {
         AssertUtil.notEmpty(appName, "appName cannot be empty");
         Map<Long, T> entities = appRules.get(appName);
         if (entities == null) {
@@ -119,5 +118,7 @@ public abstract class InMemoryRuleRepositoryAdapter<T extends RuleEntity> implem
      *
      * @return next unused id
      */
-    abstract protected long nextId();
+    protected long nextId() {
+        return idGenerator.nextId();
+    }
 }

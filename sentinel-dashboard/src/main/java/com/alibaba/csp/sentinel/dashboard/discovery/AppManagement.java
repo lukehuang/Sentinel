@@ -15,20 +15,23 @@
  */
 package com.alibaba.csp.sentinel.dashboard.discovery;
 
-import java.util.List;
-import java.util.Set;
-
-import javax.annotation.PostConstruct;
-
+import com.alibaba.csp.sentinel.dashboard.rule.nacos.listener.NacosListenerManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
+import java.util.List;
+import java.util.Set;
 
 @Component
 public class AppManagement implements MachineDiscovery {
 
     @Autowired
     private ApplicationContext context;
+
+    @Autowired(required = false)
+    private NacosListenerManager nacosListenerManager;
 
     private MachineDiscovery machineDiscovery;
 
@@ -44,9 +47,13 @@ public class AppManagement implements MachineDiscovery {
 
     @Override
     public long addMachine(MachineInfo machineInfo) {
-        return machineDiscovery.addMachine(machineInfo);
+        long c = machineDiscovery.addMachine(machineInfo);
+        if (nacosListenerManager != null) {
+            nacosListenerManager.addListenerIfNeed(machineInfo.getApp());
+        }
+        return c;
     }
-    
+
     @Override
     public boolean removeMachine(String app, String ip, int port) {
         return machineDiscovery.removeMachine(app, ip, port);
@@ -61,7 +68,7 @@ public class AppManagement implements MachineDiscovery {
     public AppInfo getDetailApp(String app) {
         return machineDiscovery.getDetailApp(app);
     }
-    
+
     @Override
     public void removeApp(String app) {
         machineDiscovery.removeApp(app);

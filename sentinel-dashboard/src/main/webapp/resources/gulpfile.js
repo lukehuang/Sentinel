@@ -23,7 +23,7 @@ const JS_LIBS = [
   'node_modules/ng-dialog/js/ngDialog.js',
   'node_modules/angular-ui-notification/dist/angular-ui-notification.min.js',
   'node_modules/angular-utils-pagination/dirPagination.js',
-  'app/scripts/libs/treeTable.js',
+  'app/scripts/libs/treeTable.js'
 ];
 
 const CSS_APP = [
@@ -54,7 +54,8 @@ const JS_APP = [
   'app/scripts/services/metricservice.js',
   'app/scripts/services/param_flow_service.js',
   'app/scripts/services/authority_service.js',
-  'app/scripts/services/cluster_state_service.js',
+  'app/scripts/services/authority_service_v2.js',
+  'app/scripts/services/cluster_state_service.js'
 ];
 
 gulp.task('lib', function () {

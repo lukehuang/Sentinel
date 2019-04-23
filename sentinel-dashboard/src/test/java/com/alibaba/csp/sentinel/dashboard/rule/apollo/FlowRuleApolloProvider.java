@@ -18,11 +18,11 @@ package com.alibaba.csp.sentinel.dashboard.rule.apollo;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.alibaba.csp.sentinel.dashboard.rule.DynamicRuleProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.csp.sentinel.dashboard.datasource.entity.rule.FlowRuleEntity;
-import com.alibaba.csp.sentinel.dashboard.rule.DynamicRuleProvider;
 import com.alibaba.csp.sentinel.datasource.Converter;
 import com.alibaba.csp.sentinel.util.StringUtil;
 

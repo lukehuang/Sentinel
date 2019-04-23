@@ -56,7 +56,7 @@ public class AuthorityRuleEntity extends AbstractRuleEntity<AuthorityRule> {
     public int getStrategy() {
         return rule.getStrategy();
     }
-    
+
     @Override
     public Rule toRule() {
         return rule;

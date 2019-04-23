@@ -1,10 +1,10 @@
 var app = angular.module('sentinelDashboardApp');
 
 app.controller('IdentityCtl', ['$scope', '$stateParams', 'IdentityService',
-  'ngDialog', 'FlowServiceV1', 'DegradeService', 'AuthorityRuleService', 'ParamFlowService', 'MachineService',
+  'ngDialog', 'FlowServiceV2', 'AuthorityRuleServiceV2', 'MachineService',
   '$interval', '$location', '$timeout',
   function ($scope, $stateParams, IdentityService, ngDialog,
-    FlowService, DegradeService, AuthorityRuleService, ParamFlowService, MachineService, $interval, $location, $timeout) {
+    FlowServiceV2, AuthorityRuleServiceV2, MachineService, $interval, $location, $timeout) {
 
     $scope.app = $stateParams.app;
 
@@ -40,10 +40,6 @@ app.controller('IdentityCtl', ['$scope', '$stateParams', 'IdentityService',
     var flowRuleDialog;
     var flowRuleDialogScope;
     $scope.addNewFlowRule = function (resource) {
-      if (!$scope.macInputModel) {
-        return;
-      }
-      var mac = $scope.macInputModel.split(':');
       flowRuleDialogScope = $scope.$new(true);
       flowRuleDialogScope.currentRule = {
         enable: false,
@@ -57,8 +53,6 @@ app.controller('IdentityCtl', ['$scope', '$stateParams', 'IdentityService',
             thresholdType: 0
         },
         app: $scope.app,
-        ip: mac[0],
-        port: mac[1]
       };
 
       flowRuleDialogScope.flowRuleDialog = {
@@ -89,13 +83,13 @@ app.controller('IdentityCtl', ['$scope', '$stateParams', 'IdentityService',
     };
 
     function saveFlowRule() {
-      if (!FlowService.checkRuleValid(flowRuleDialogScope.currentRule)) {
+      if (!FlowServiceV2.checkRuleValid(flowRuleDialogScope.currentRule)) {
         return;
       }
-      FlowService.newRule(flowRuleDialogScope.currentRule).success(function (data) {
+      FlowServiceV2.newRule(flowRuleDialogScope.currentRule).success(function (data) {
         if (data.code === 0) {
           flowRuleDialog.close();
-          let url = '/dashboard/flow/' + $scope.app;
+          let url = '/dashboard/v2/flow/' + $scope.app;
           $location.path(url);
         } else {
           alert('失败!');
@@ -106,76 +100,12 @@ app.controller('IdentityCtl', ['$scope', '$stateParams', 'IdentityService',
     }
 
     function saveFlowRuleAndContinue() {
-        if (!FlowService.checkRuleValid(flowRuleDialogScope.currentRule)) {
+        if (!FlowServiceV2.checkRuleValid(flowRuleDialogScope.currentRule)) {
             return;
         }
-      FlowService.newRule(flowRuleDialogScope.currentRule).success(function (data) {
-        if (data.code == 0) {
+      FlowServiceV2.newRule(flowRuleDialogScope.currentRule).success(function (data) {
+        if (data.code === 0) {
           flowRuleDialog.close();
-        } else {
-          alert('失败!');
-        }
-      });
-    }
-
-    var degradeRuleDialog;
-    var degradeRuleDialogScope;
-    $scope.addNewDegradeRule = function (resource) {
-      if (!$scope.macInputModel) {
-        return;
-      }
-      var mac = $scope.macInputModel.split(':');
-      degradeRuleDialogScope = $scope.$new(true);
-      degradeRuleDialogScope.currentRule = {
-        enable: false,
-        grade: 0,
-        strategy: 0,
-        resource: resource,
-        limitApp: 'default',
-        app: $scope.app,
-        ip: mac[0],
-        port: mac[1]
-      };
-
-      degradeRuleDialogScope.degradeRuleDialog = {
-        title: '新增降级规则',
-        type: 'add',
-        confirmBtnText: '新增',
-        saveAndContinueBtnText: '新增并继续添加'
-      };
-      degradeRuleDialogScope.saveRule = saveDegradeRule;
-      degradeRuleDialogScope.saveRuleAndContinue = saveDegradeRuleAndContinue;
-
-      degradeRuleDialog = ngDialog.open({
-        template: '/app/views/dialog/degrade-rule-dialog.html',
-        width: 680,
-        overlay: true,
-        scope: degradeRuleDialogScope
-      });
-    };
-
-    function saveDegradeRule() {
-        if (!DegradeService.checkRuleValid(degradeRuleDialogScope.currentRule)) {
-            return;
-        }
-      DegradeService.newRule(degradeRuleDialogScope.currentRule).success(function (data) {
-        if (data.code == 0) {
-          degradeRuleDialog.close();
-          var url = '/dashboard/degrade/' + $scope.app;
-          $location.path(url);
-        } else {
-          alert('失败!');
-        }
-      });
-    }
-
-    function saveDegradeRuleAndContinue() {
-        if (!DegradeService.checkRuleValid(degradeRuleDialogScope.currentRule)) {
-            return;
-        }
-      DegradeService.newRule(degradeRuleDialogScope.currentRule).success(function (data) {
-        if (data.code == 0) {
-          degradeRuleDialog.close();
         } else {
           alert('失败!');
         }
@@ -187,13 +117,13 @@ app.controller('IdentityCtl', ['$scope', '$stateParams', 'IdentityService',
 
       function saveAuthorityRule() {
           let ruleEntity = authorityRuleDialogScope.currentRule;
-          if (!AuthorityRuleService.checkRuleValid(ruleEntity.rule)) {
+          if (!AuthorityRuleServiceV2.checkRuleValid(ruleEntity.rule)) {
               return;
           }
-          AuthorityRuleService.addNewRule(ruleEntity).success((data) => {
+          AuthorityRuleServiceV2.addNewRule(ruleEntity).success((data) => {
               if (data.success) {
                   authorityRuleDialog.close();
-                  let url = '/dashboard/authority/' + $scope.app;
+                  let url = '/dashboard/v2/authority/' + $scope.app;
                   $location.path(url);
               } else {
                   alert('添加规则失败：' + data.msg);
@@ -209,10 +139,10 @@ app.controller('IdentityCtl', ['$scope', '$stateParams', 'IdentityService',
 
       function saveAuthorityRuleAndContinue() {
           let ruleEntity = authorityRuleDialogScope.currentRule;
-          if (!AuthorityRuleService.checkRuleValid(ruleEntity.rule)) {
+          if (!AuthorityRuleServiceV2.checkRuleValid(ruleEntity.rule)) {
               return;
           }
-          AuthorityRuleService.addNewRule(ruleEntity).success((data) => {
+          AuthorityRuleServiceV2.addNewRule(ruleEntity).success((data) => {
               if (data.success) {
                   authorityRuleDialog.close();
               } else {
@@ -228,15 +158,9 @@ app.controller('IdentityCtl', ['$scope', '$stateParams', 'IdentityService',
       }
 
       $scope.addNewAuthorityRule = function (resource) {
-          if (!$scope.macInputModel) {
-              return;
-          }
-          let mac = $scope.macInputModel.split(':');
           authorityRuleDialogScope = $scope.$new(true);
           authorityRuleDialogScope.currentRule = {
               app: $scope.app,
-              ip: mac[0],
-              port: mac[1],
               rule: {
                   resource: resource,
                   strategy: 0,
@@ -261,94 +185,6 @@ app.controller('IdentityCtl', ['$scope', '$stateParams', 'IdentityService',
           });
       };
 
-      let paramFlowRuleDialog;
-      let paramFlowRuleDialogScope;
-
-      function saveParamFlowRule() {
-          let ruleEntity = paramFlowRuleDialogScope.currentRule;
-          if (!ParamFlowService.checkRuleValid(ruleEntity.rule)) {
-              return;
-          }
-          ParamFlowService.addNewRule(ruleEntity).success((data) => {
-              if (data.success) {
-                  paramFlowRuleDialog.close();
-                  let url = '/dashboard/paramFlow/' + $scope.app;
-                  $location.path(url);
-              } else {
-                  alert('添加热点规则失败：' + data.msg);
-              }
-          }).error((data) => {
-              if (data) {
-                  alert('添加热点规则失败：' + data.msg);
-              } else {
-                  alert("添加热点规则失败：未知错误");
-              }
-          });
-      }
-
-      function saveParamFlowRuleAndContinue() {
-          let ruleEntity = paramFlowRuleDialogScope.currentRule;
-          if (!ParamFlowService.checkRuleValid(ruleEntity.rule)) {
-              return;
-          }
-          ParamFlowService.addNewRule(ruleEntity).success((data) => {
-              if (data.success) {
-                  paramFlowRuleDialog.close();
-              } else {
-                  alert('添加热点规则失败：' + data.msg);
-              }
-          }).error((data) => {
-              if (data) {
-                  alert('添加热点规则失败：' + data.msg);
-              } else {
-                  alert("添加热点规则失败：未知错误");
-              }
-          });
-      }
-
-      $scope.addNewParamFlowRule = function (resource) {
-          if (!$scope.macInputModel) {
-              return;
-          }
-          let mac = $scope.macInputModel.split(':');
-          paramFlowRuleDialogScope = $scope.$new(true);
-          paramFlowRuleDialogScope.currentRule = {
-              app: $scope.app,
-              ip: mac[0],
-              port: mac[1],
-              rule: {
-                  resource: resource,
-                  grade: 1,
-                  paramFlowItemList: [],
-                  count: 0,
-                  limitApp: 'default',
-              }
-          };
-
-          paramFlowRuleDialogScope.paramFlowRuleDialog = {
-              title: '新增热点规则',
-              type: 'add',
-              confirmBtnText: '新增',
-              saveAndContinueBtnText: '新增并继续添加',
-              supportAdvanced: false,
-              showAdvanceButton: true
-          };
-          paramFlowRuleDialogScope.saveRule = saveParamFlowRule;
-          paramFlowRuleDialogScope.saveRuleAndContinue = saveParamFlowRuleAndContinue;
-          // paramFlowRuleDialogScope.onOpenAdvanceClick = function () {
-          //     paramFlowRuleDialogScope.paramFlowRuleDialog.showAdvanceButton = false;
-          // };
-          // paramFlowRuleDialogScope.onCloseAdvanceClick = function () {
-          //     paramFlowRuleDialogScope.paramFlowRuleDialog.showAdvanceButton = true;
-          // };
-
-          paramFlowRuleDialog = ngDialog.open({
-              template: '/app/views/dialog/param-flow-rule-dialog.html',
-              width: 680,
-              overlay: true,
-              scope: paramFlowRuleDialogScope
-          });
-      };
 
     var searchHandler;
     $scope.searchChange = function (searchKey) {
@@ -430,7 +266,7 @@ app.controller('IdentityCtl', ['$scope', '$stateParams', 'IdentityService',
       // intervalId = $interval(function () {
       //    queryIdentities();
       // }, DATA_REFRESH_INTERVAL * 1000);
-    };
+    }
 
     function queryIdentities() {
       var mac = $scope.macInputModel.split(':');
@@ -440,7 +276,7 @@ app.controller('IdentityCtl', ['$scope', '$stateParams', 'IdentityService',
       if ($scope.isTreeView) {
         IdentityService.fetchIdentityOfMachine(mac[0], mac[1], $scope.searchKey).success(
           function (data) {
-            if (data.code == 0 && data.data) {
+            if (data.code === 0 && data.data) {
               $scope.identities = data.data;
               $scope.totalCount = $scope.identities.length;
             } else {
@@ -452,7 +288,7 @@ app.controller('IdentityCtl', ['$scope', '$stateParams', 'IdentityService',
       } else {
         IdentityService.fetchClusterNodeOfMachine(mac[0], mac[1], $scope.searchKey).success(
           function (data) {
-            if (data.code == 0 && data.data) {
+            if (data.code === 0 && data.data) {
               $scope.identities = data.data;
               $scope.totalCount = $scope.identities.length;
             } else {
@@ -462,6 +298,6 @@ app.controller('IdentityCtl', ['$scope', '$stateParams', 'IdentityService',
           }
         );
       }
-    };
+    }
     $scope.queryIdentities = queryIdentities;
   }]);

@@ -47,7 +47,7 @@ angular.module('sentinelDashboardApp')
           entry.active = !entry.active;// toggle this clicked app bar
 
           $scope.apps.forEach(function (item) {// collapse other app bars
-            if (item != entry) {
+            if (item !== entry) {
               item.active = false;
             }
           });
