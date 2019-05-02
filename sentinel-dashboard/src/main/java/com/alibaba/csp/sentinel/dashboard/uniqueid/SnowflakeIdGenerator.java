@@ -2,9 +2,6 @@ package com.alibaba.csp.sentinel.dashboard.uniqueid;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 
 /**
  * @author rodbate
@@ -13,9 +10,7 @@ import java.time.format.DateTimeFormatter;
 @Slf4j
 public class SnowflakeIdGenerator implements IdGenerator<Long> {
 
-    private static final DateTimeFormatter DF = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    private final long startEpoch = LocalDateTime.parse("2019-01-01 08:00:00", DF).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-
+    private final long startEpoch = 1546300800000L;
     private final long workerIdBits = 5L;
     private final long datacenterIdBits = 5L;
     private final long maxWorkerId = ~(-1L << workerIdBits);
